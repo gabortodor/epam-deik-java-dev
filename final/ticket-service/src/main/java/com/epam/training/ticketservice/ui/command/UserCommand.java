@@ -44,11 +44,11 @@ public class UserCommand {
     @ShellMethod(key = "describe account", value = "Describes currently logged in account")
     public String describeCurrentUser() {
         Optional<UserDto> userDto = userService.getSignedInUser();
-        if(userDto.isEmpty())
+        if (userDto.isEmpty())
             return "You are not signed in";
-        UserDto user=userDto.get();
-        if(user.getRole().equals(Role.ADMIN)){
-            return "Signed in with privileged account "+user;
+        UserDto user = userDto.get();
+        if (user.getRole().equals(Role.ADMIN)) {
+            return "Signed in with privileged account " + user;
         }
         //TODO User information with booking information
         return null;
@@ -56,7 +56,7 @@ public class UserCommand {
 
     @ShellMethod(key = "sign out", value = "Sign out")
     public String signOut() {
-        Optional<UserDto> user =userService.signOut();
+        Optional<UserDto> user = userService.signOut();
         return user.isEmpty() ? "You need to login first!" : user.get().getUsername() + " is now signed out!";
     }
 }

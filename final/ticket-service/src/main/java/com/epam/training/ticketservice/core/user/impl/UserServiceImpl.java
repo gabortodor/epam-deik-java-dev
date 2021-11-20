@@ -18,8 +18,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository){
-        this.userRepository=userRepository;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserDto> signInPrivileged(String username, String password){
+    public Optional<UserDto> signInPrivileged(String username, String password) {
         Objects.requireNonNull(username, "Username must have a value for a successful login!");
         Objects.requireNonNull(password, "Password must have a value for a successful login!");
         signedInUser = retrieveUserInfoByNameAndPassword(username, password, Role.ADMIN);

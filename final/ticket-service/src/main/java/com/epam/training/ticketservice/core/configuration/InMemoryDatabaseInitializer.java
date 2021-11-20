@@ -19,7 +19,7 @@ public class InMemoryDatabaseInitializer {
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         User admin = new User("admin", "admin", Role.ADMIN);
         userRepository.save(admin);
     }
