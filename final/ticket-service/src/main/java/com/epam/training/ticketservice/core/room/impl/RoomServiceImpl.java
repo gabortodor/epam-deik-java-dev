@@ -24,10 +24,10 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void createRoom(RoomDto roomDto) {
-        Objects.requireNonNull(roomDto,"Room cannot be null");
-        Objects.requireNonNull(roomDto.getName(),"The room's name cannot be null");
-        Objects.requireNonNull(roomDto.getRowCount(),"The room's row count cannot be null");
-        Objects.requireNonNull(roomDto.getColumnCount(),"The room's column count cannot be null");
+        Objects.requireNonNull(roomDto, "Room cannot be null");
+        Objects.requireNonNull(roomDto.getName(), "The room's name cannot be null");
+        Objects.requireNonNull(roomDto.getRowCount(), "The room's row count cannot be null");
+        Objects.requireNonNull(roomDto.getColumnCount(), "The room's column count cannot be null");
         Room room = new Room(roomDto.getName(), roomDto.getRowCount(), roomDto.getColumnCount());
         roomRepository.save(room);
 
@@ -35,10 +35,10 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void updateRoom(RoomDto roomDto) {
-        Objects.requireNonNull(roomDto,"Room cannot be null");
-        Objects.requireNonNull(roomDto.getName(),"The room's name cannot be null");
-        Objects.requireNonNull(roomDto.getRowCount(),"The room's row count cannot be null");
-        Objects.requireNonNull(roomDto.getColumnCount(),"The room's column count cannot be null");
+        Objects.requireNonNull(roomDto, "Room cannot be null");
+        Objects.requireNonNull(roomDto.getName(), "The room's name cannot be null");
+        Objects.requireNonNull(roomDto.getRowCount(), "The room's row count cannot be null");
+        Objects.requireNonNull(roomDto.getColumnCount(), "The room's column count cannot be null");
         Room room = new Room(roomDto.getName(), roomDto.getRowCount(), roomDto.getColumnCount());
         roomRepository.save(room);
     }
@@ -59,11 +59,25 @@ public class RoomServiceImpl implements RoomService {
         return convertEntityToDto(roomRepository.findById(name));
     }
 
+
+    @Override
+    public String updateChangeInPrice(String name, int priceChange) {
+        Optional<Room> roomOpt = roomRepository.findById(name);
+        if (roomOpt.isEmpty()) {
+            return "No such room exists";
+        }
+        Room room = roomOpt.get();
+        room.setChangeInPrice(priceChange);
+        roomRepository.save(room);
+        return "Price component successfully applied";
+    }
+
     private RoomDto convertEntityToDto(Room room) {
         return RoomDto.builder()
                 .name(room.getName())
                 .rowCount(room.getRowCount())
                 .columnCount(room.getColumnCount())
+                .changeInPrice(room.getChangeInPrice())
                 .build();
     }
 

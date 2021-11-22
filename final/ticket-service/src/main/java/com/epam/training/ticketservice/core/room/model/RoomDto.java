@@ -13,6 +13,8 @@ public class RoomDto {
 
     private final Integer columnCount;
 
+    private final Integer changeInPrice;
+
     @Override
     public String toString() {
         return "Room " + name

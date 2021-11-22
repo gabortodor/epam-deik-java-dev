@@ -17,6 +17,8 @@ public class Screening {
     @EmbeddedId
     private ScreeningKey screeningKey;
 
+    private int changeInPrice = 0;
+
     public Screening(String movieTitle, String roomName, String startingTime) {
         this.screeningKey = new ScreeningKey(movieTitle, roomName, startingTime);
     }

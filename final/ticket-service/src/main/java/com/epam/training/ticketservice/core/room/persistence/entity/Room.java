@@ -18,4 +18,12 @@ public class Room {
     private Integer rowCount;
 
     private Integer columnCount;
+
+    private int changeInPrice = 0;
+
+    public Room(String name, Integer rowCount, Integer columnCount) {
+        this.name = name;
+        this.rowCount = rowCount;
+        this.columnCount = columnCount;
+    }
 }

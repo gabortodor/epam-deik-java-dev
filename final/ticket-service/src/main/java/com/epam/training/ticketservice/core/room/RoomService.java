@@ -16,4 +16,6 @@ public interface RoomService {
     List<RoomDto> listRooms();
 
     Optional<RoomDto> getRoomByName(String name);
+
+    String updateChangeInPrice(String name, int priceChange);
 }

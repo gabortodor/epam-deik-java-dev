@@ -10,19 +10,20 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-@Profile("ci")
-public class InMemoryDatabaseInitializer {
-
+@Profile("prod")
+public class TraditionalDatabaseInitializer {
     private final UserRepository userRepository;
 
     @Autowired
-    public InMemoryDatabaseInitializer(UserRepository userRepository) {
+    public TraditionalDatabaseInitializer(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @PostConstruct
     public void init() {
-        User admin = new User("admin", "admin", Role.ADMIN);
-        userRepository.save(admin);
+        if (userRepository.findById("admin").isEmpty()) {
+            User admin = new User("admin", "admin", Role.ADMIN);
+            userRepository.save(admin);
+        }
     }
 }

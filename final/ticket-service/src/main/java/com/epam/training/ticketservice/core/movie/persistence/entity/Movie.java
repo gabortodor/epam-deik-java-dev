@@ -21,4 +21,11 @@ public class Movie {
 
     private Integer runtime;
 
+    private int changeInPrice = 0;
+
+    public Movie(String title, String genre, Integer runtime) {
+        this.title = title;
+        this.genre = genre;
+        this.runtime = runtime;
+    }
 }

@@ -13,4 +13,6 @@ public class ScreeningDto {
 
     private String startingTime;
 
+    private final Integer changeInPrice;
+
 }

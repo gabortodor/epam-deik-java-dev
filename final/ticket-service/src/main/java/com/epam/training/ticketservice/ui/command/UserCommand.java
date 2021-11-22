@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
+import java.text.Collator;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @ShellComponent
@@ -59,13 +62,16 @@ public class UserCommand {
             return "Signed in with privileged account 'admin'";
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("Signed in with account " + user.getUsername() + "\n");
+        sb.append("Signed in with account '" + user.getUsername() + "'\n");
         List<BookingDto> bookings = bookingService.listBookingForUser(user.getUsername());
+
         if (bookings.isEmpty()) {
             sb.append("You have not booked any tickets yet");
         } else {
+            sb.append("Your previous bookings are\n");
             for (BookingDto booking : bookings) {
-                sb.append(booking + "\n");
+                sb.append(booking.toString());
+                sb.append("\n");
             }
         }
         return sb.toString();

@@ -24,20 +24,20 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public void createMovie(MovieDto movieDto) {
-        Objects.requireNonNull(movieDto,"Movie cannot be null");
-        Objects.requireNonNull(movieDto.getTitle(),"The movie's title cannot be null");
-        Objects.requireNonNull(movieDto.getGenre(),"The movie's genre cannot be null");
-        Objects.requireNonNull(movieDto.getRuntime(),"The movie's runtime cannot be null");
+        Objects.requireNonNull(movieDto, "Movie cannot be null");
+        Objects.requireNonNull(movieDto.getTitle(), "The movie's title cannot be null");
+        Objects.requireNonNull(movieDto.getGenre(), "The movie's genre cannot be null");
+        Objects.requireNonNull(movieDto.getRuntime(), "The movie's runtime cannot be null");
         Movie movie = new Movie(movieDto.getTitle(), movieDto.getGenre(), movieDto.getRuntime());
         movieRepository.save(movie);
     }
 
     @Override
     public void updateMovie(MovieDto movieDto) {
-        Objects.requireNonNull(movieDto,"Movie cannot be null");
-        Objects.requireNonNull(movieDto.getTitle(),"The movie's title cannot be null");
-        Objects.requireNonNull(movieDto.getGenre(),"The movie's genre cannot be null");
-        Objects.requireNonNull(movieDto.getRuntime(),"The movie's runtime cannot be null");
+        Objects.requireNonNull(movieDto, "Movie cannot be null");
+        Objects.requireNonNull(movieDto.getTitle(), "The movie's title cannot be null");
+        Objects.requireNonNull(movieDto.getGenre(), "The movie's genre cannot be null");
+        Objects.requireNonNull(movieDto.getRuntime(), "The movie's runtime cannot be null");
         Movie movie = new Movie(movieDto.getTitle(), movieDto.getGenre(), movieDto.getRuntime());
         movieRepository.save(movie);
     }
@@ -57,11 +57,24 @@ public class MovieServiceImpl implements MovieService {
         return convertEntityToDto(movieRepository.findById(title));
     }
 
+    @Override
+    public String updateChangeInPrice(String title, int priceChange) {
+        Optional<Movie> movieOpt = movieRepository.findById(title);
+        if (movieOpt.isEmpty()) {
+            return "No such movie exists";
+        }
+        Movie movie = movieOpt.get();
+        movie.setChangeInPrice(priceChange);
+        movieRepository.save(movie);
+        return "Price component successfully applied";
+    }
+
     private MovieDto convertEntityToDto(Movie movie) {
         return MovieDto.builder()
                 .title(movie.getTitle())
                 .genre(movie.getGenre())
                 .runtime(movie.getRuntime())
+                .changeInPrice(movie.getChangeInPrice())
                 .build();
     }
 

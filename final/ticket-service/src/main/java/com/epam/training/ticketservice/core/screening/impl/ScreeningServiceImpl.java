@@ -4,6 +4,7 @@ import com.epam.training.ticketservice.core.movie.MovieService;
 import com.epam.training.ticketservice.core.movie.model.MovieDto;
 import com.epam.training.ticketservice.core.room.RoomService;
 import com.epam.training.ticketservice.core.room.model.RoomDto;
+import com.epam.training.ticketservice.core.room.persistence.entity.Room;
 import com.epam.training.ticketservice.core.screening.ScreeningService;
 import com.epam.training.ticketservice.core.screening.model.ScreeningDto;
 import com.epam.training.ticketservice.core.screening.persistence.entity.Screening;
@@ -94,11 +95,25 @@ public class ScreeningServiceImpl implements ScreeningService {
         return convertEntityToDto(screeningRepository.findById(screeningKey));
     }
 
+    @Override
+    public String updateChangeInPrice(String movieTitle, String roomName, String startingTime, int priceChange) {
+        Screening.ScreeningKey screeningKey = new Screening.ScreeningKey(movieTitle, roomName, startingTime);
+        Optional<Screening> screeningOpt = screeningRepository.findById(screeningKey);
+        if (screeningOpt.isEmpty()) {
+            return "No such screening exists";
+        }
+        Screening screening = screeningOpt.get();
+        screening.setChangeInPrice(priceChange);
+        screeningRepository.save(screening);
+        return "Price component successfully applied";
+    }
+
     private ScreeningDto convertEntityToDto(Screening screening) {
         return ScreeningDto.builder()
                 .movieTitle(screening.getMovieTitle())
                 .roomName(screening.getRoomName())
                 .startingTime(screening.getStaringTime())
+                .changeInPrice(screening.getChangeInPrice())
                 .build();
     }
 

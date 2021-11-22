@@ -4,6 +4,8 @@ import com.epam.training.ticketservice.core.booking.BookingService;
 import com.epam.training.ticketservice.core.booking.model.BookingDto;
 import com.epam.training.ticketservice.core.booking.persistence.entity.Booking;
 import com.epam.training.ticketservice.core.booking.persistence.repository.BookingRepository;
+import com.epam.training.ticketservice.core.movie.MovieService;
+import com.epam.training.ticketservice.core.movie.model.MovieDto;
 import com.epam.training.ticketservice.core.room.RoomService;
 import com.epam.training.ticketservice.core.room.model.RoomDto;
 import com.epam.training.ticketservice.core.screening.ScreeningService;
@@ -20,18 +22,23 @@ import java.util.stream.Collectors;
 @Service
 public class BookingServiceImpl implements BookingService {
 
+    private int basePrice = 1500;
+
     private final BookingRepository bookingRepository;
 
     private final ScreeningService screeningService;
 
     private final RoomService roomService;
 
+    private final MovieService movieService;
+
     @Autowired
-    public BookingServiceImpl(BookingRepository bookingRepository,
-                              ScreeningService screeningService, RoomService roomService) {
+    public BookingServiceImpl(BookingRepository bookingRepository, ScreeningService screeningService,
+                              RoomService roomService, MovieService movieService) {
         this.bookingRepository = bookingRepository;
         this.screeningService = screeningService;
         this.roomService = roomService;
+        this.movieService = movieService;
     }
 
     @Override
@@ -47,22 +54,23 @@ public class BookingServiceImpl implements BookingService {
         if (screeningOpt.isEmpty()) {
             return "No such screening exists";
         }
-        ScreeningDto screening = screeningOpt.get();
         if (checkValidSeats(bookingDto).isPresent()) {
-            return "Seat " + checkSeats(bookingDto).get() + " does not exists in this room";
+            return "Seat (" + checkValidSeats(bookingDto).get() + ") does not exists in this room";
         }
-        if (checkSeats(bookingDto).isPresent()) {
-            return "Seat " + checkSeats(bookingDto).get() + " is already taken";
+        if (checkSeatsBooked(bookingDto).isPresent()) {
+            return "Seat (" + checkSeatsBooked(bookingDto).get() + ") is already taken";
         }
+        if (calculatePriceForBooking(bookingDto) == -1) {
+            return "Invalid arguments given";
+        }
+        int price = calculatePriceForBooking(bookingDto);
 
         Booking booking = new Booking(bookingDto.getMovieTitle(), bookingDto.getRoomName(),
-                bookingDto.getStartingTime(), bookingDto.getSeats(), bookingDto.getUsername(),
-                bookingDto.getSeats().split(" ").length * 1500);
+                bookingDto.getStartingTime(), bookingDto.getSeats(), bookingDto.getUsername(), price);
 
         bookingRepository.save(booking);
-        return "Seats booked " + booking.getSeats() + "; the price for this booking is " + booking.getPrice() + " HUF";
-
-
+        return "Seats booked: (" + String.join("), (", booking.getSeats().split(" "))
+                + "); the price for this booking is " + booking.getPrice() + " HUF";
     }
 
     @Override
@@ -71,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
                 .map(this::convertEntityToDto).collect(Collectors.toList());
     }
 
-    private Optional<String> checkSeats(BookingDto bookingDto) {
+    private Optional<String> checkSeatsBooked(BookingDto bookingDto) {
         List<Booking> bookings =
                 bookingRepository.findAllByMovieTitleAndRoomNameAndStartingTime(
                         bookingDto.getMovieTitle(), bookingDto.getRoomName(),
@@ -95,6 +103,34 @@ public class BookingServiceImpl implements BookingService {
                 || Character.getNumericValue(b.charAt(2)) < 0
                 || Character.getNumericValue(b.charAt(2)) > room.getColumnCount()).findFirst();
 
+    }
+
+
+    private boolean isValidBooking(BookingDto bookingDto) {
+        Screening.ScreeningKey screeningKey = new Screening.ScreeningKey(bookingDto.getMovieTitle(),
+                bookingDto.getRoomName(), bookingDto.getStartingTime());
+        return movieService.getMovieByTitle(bookingDto.getMovieTitle()).isPresent()
+                && roomService.getRoomByName(bookingDto.getRoomName()).isPresent()
+                && screeningService.getScreeningByKey(screeningKey).isPresent();
+    }
+
+    public int calculatePriceForBooking(BookingDto bookingDto) {
+        if (!isValidBooking(bookingDto)) {
+            return -1;
+        }
+        MovieDto movie = movieService.getMovieByTitle(bookingDto.getMovieTitle()).get();
+        RoomDto room = roomService.getRoomByName(bookingDto.getRoomName()).get();
+        Screening.ScreeningKey screeningKey = new Screening.ScreeningKey(bookingDto.getMovieTitle(),
+                bookingDto.getRoomName(), bookingDto.getStartingTime());
+        ScreeningDto screening = screeningService.getScreeningByKey(screeningKey).get();
+        int numberOfSeats = bookingDto.getSeats().split(" ").length;
+
+        return numberOfSeats
+                * (basePrice + movie.getChangeInPrice() + room.getChangeInPrice() + screening.getChangeInPrice());
+    }
+
+    public void setBasePrice(int newBasePrice) {
+        this.basePrice = newBasePrice;
     }
 
     private BookingDto convertEntityToDto(Booking booking) {

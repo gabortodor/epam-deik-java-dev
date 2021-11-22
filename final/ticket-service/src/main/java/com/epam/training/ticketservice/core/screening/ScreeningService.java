@@ -17,4 +17,6 @@ public interface ScreeningService {
     List<ScreeningDto> getScreeningsInSpecifiedRoom(String roomName);
 
     Optional<ScreeningDto> getScreeningByKey(Screening.ScreeningKey screeningKey);
+
+    String updateChangeInPrice(String movieTitle, String roomName, String startingTime, int priceChange);
 }

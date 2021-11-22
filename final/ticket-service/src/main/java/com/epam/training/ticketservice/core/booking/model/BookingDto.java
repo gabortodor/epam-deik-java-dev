@@ -17,9 +17,9 @@ public class BookingDto {
 
     @Override
     public String toString() {
-        return "Seats "
-                + String.join(", ", List.of(seats.split(" ")))
-                + " on " + movieTitle + " in room " + roomName + " starting at "
+        return "Seats ("
+                +  String.join("), (", List.of(seats.split(" ")))
+                + ") on " + movieTitle + " in room " + roomName + " starting at "
                 + startingTime + " for " + price + " HUF";
 
 

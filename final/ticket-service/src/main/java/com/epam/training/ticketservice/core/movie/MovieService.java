@@ -16,4 +16,6 @@ public interface MovieService {
     List<MovieDto> listMovies();
 
     Optional<MovieDto> getMovieByTitle(String title);
+
+    String updateChangeInPrice(String title, int priceChange);
 }

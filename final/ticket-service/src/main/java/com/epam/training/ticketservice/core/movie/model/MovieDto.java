@@ -13,6 +13,8 @@ public class MovieDto {
 
     private final Integer runtime;
 
+    private final Integer changeInPrice;
+
     @Override
     public String toString() {
         return title + " (" + genre + ", " + runtime + " minutes)";
