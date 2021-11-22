@@ -1,5 +1,7 @@
 package com.epam.training.ticketservice.ui.command;
 
+import com.epam.training.ticketservice.core.booking.BookingService;
+import com.epam.training.ticketservice.core.booking.model.BookingDto;
 import com.epam.training.ticketservice.core.user.UserService;
 import com.epam.training.ticketservice.core.user.model.UserDto;
 import com.epam.training.ticketservice.core.user.persistence.entity.Role;
@@ -7,16 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
+import java.util.List;
 import java.util.Optional;
 
 @ShellComponent
 public class UserCommand {
 
     private final UserService userService;
+    private final BookingService bookingService;
 
     @Autowired
-    public UserCommand(UserService userService) {
+    public UserCommand(UserService userService, BookingService bookingService) {
         this.userService = userService;
+        this.bookingService = bookingService;
     }
 
     @ShellMethod(key = "sign up", value = "Registers a user, with the specified username and password")
@@ -32,26 +37,38 @@ public class UserCommand {
     @ShellMethod(key = "sign in", value = "User login")
     public String signInUser(String username, String password) {
         Optional<UserDto> user = userService.signIn(username, password);
-        return user.isEmpty() ? "Login failed due to incorrect credentials" : "Welcome " + user.get().getUsername() + "!";
+        return user.isEmpty() ? "Login failed due to incorrect credentials" :
+                "Welcome " + user.get().getUsername() + "!";
     }
 
     @ShellMethod(key = "sign in privileged", value = "Admin login")
     public String signInPrivileged(String username, String password) {
         Optional<UserDto> user = userService.signInPrivileged(username, password);
-        return user.isEmpty() ? "Login failed due to incorrect credentials" : "Welcome " + user.get().getUsername() + "!";
+        return user.isEmpty() ? "Login failed due to incorrect credentials" :
+                "Welcome " + user.get().getUsername() + "!";
     }
 
     @ShellMethod(key = "describe account", value = "Describes currently logged in account")
     public String describeCurrentUser() {
         Optional<UserDto> userDto = userService.getSignedInUser();
-        if (userDto.isEmpty())
+        if (userDto.isEmpty()) {
             return "You are not signed in";
+        }
         UserDto user = userDto.get();
         if (user.getRole().equals(Role.ADMIN)) {
-            return "Signed in with privileged account " + user;
+            return "Signed in with privileged account 'admin'";
         }
-        //TODO User information with booking information
-        return null;
+        StringBuilder sb = new StringBuilder();
+        sb.append("Signed in with account " + user.getUsername() + "\n");
+        List<BookingDto> bookings = bookingService.listBookingForUser(user.getUsername());
+        if (bookings.isEmpty()) {
+            sb.append("You have not booked any tickets yet");
+        } else {
+            for (BookingDto booking : bookings) {
+                sb.append(booking + "\n");
+            }
+        }
+        return sb.toString();
     }
 
     @ShellMethod(key = "sign out", value = "Sign out")

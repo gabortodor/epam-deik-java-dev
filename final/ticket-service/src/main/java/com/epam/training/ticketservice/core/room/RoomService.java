@@ -1,16 +1,19 @@
 package com.epam.training.ticketservice.core.room;
 
-import com.epam.training.ticketservice.core.room.persistence.entity.Room;
+import com.epam.training.ticketservice.core.room.model.RoomDto;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RoomService {
 
-    void createRoom(String name, Integer rowCount, Integer columnCount);
+    void createRoom(RoomDto roomDto);
 
-    void updateRoom(String name, Integer rowCount, Integer columnCount);
+    void updateRoom(RoomDto roomDto);
 
     void deleteRoom(String name);
 
-    List<Room> listRooms();
+    List<RoomDto> listRooms();
+
+    Optional<RoomDto> getRoomByName(String name);
 }

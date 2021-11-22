@@ -2,7 +2,6 @@ package com.epam.training.ticketservice.ui.command;
 
 import com.epam.training.ticketservice.core.movie.MovieService;
 import com.epam.training.ticketservice.core.movie.model.MovieDto;
-import com.epam.training.ticketservice.core.movie.persistence.entity.Movie;
 import com.epam.training.ticketservice.core.user.UserService;
 import com.epam.training.ticketservice.core.user.model.UserDto;
 import com.epam.training.ticketservice.core.user.persistence.entity.Role;
@@ -12,7 +11,10 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
 
+import java.text.Collator;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,14 +34,16 @@ public class MovieCommand {
     @ShellMethodAvailability("isAvailable")
     @ShellMethod(key = "create movie", value = "Creates the specified movie")
     public String createMovie(String title, String genre, Integer runtime) {
-        movieService.createMovie(title, genre, runtime);
+        MovieDto movie = MovieDto.builder().title(title).genre(genre).runtime(runtime).build();
+        movieService.createMovie(movie);
         return title + " was successfully created!";
     }
 
     @ShellMethodAvailability("isAvailable")
     @ShellMethod(key = "update movie", value = "Updates the specified movie")
     public String updateMovie(String title, String genre, Integer runtime) {
-        movieService.updateMovie(title, genre, runtime);
+        MovieDto movie = MovieDto.builder().title(title).genre(genre).runtime(runtime).build();
+        movieService.updateMovie(movie);
         return title + " was successfully updated!";
     }
 
@@ -52,11 +56,19 @@ public class MovieCommand {
 
     @ShellMethod(key = "list movies", value = "Lists all the movies")
     public String listMovies() {
-        List<Movie> movieList = movieService.listMovies();
+        List<MovieDto> movieList = movieService.listMovies();
         if (movieList.isEmpty()) {
             return "There are no movies at the moment";
         }
-        return movieList.stream().map(m -> new MovieDto(m.getTitle(), m.getGenre(), m.getRuntime()).toString()).collect(Collectors.joining("\n"));
+        List<String> movieStrings = movieList.stream().map(MovieDto::toString).collect(Collectors.toList());
+
+
+        //TODO
+        Locale hungarian = new Locale("hu", "HU");
+        Collator collator = Collator.getInstance(hungarian);
+        Collections.sort(movieStrings, collator);
+        return String.join("\n",movieStrings);
+
     }
 
     private Availability isAvailable() {

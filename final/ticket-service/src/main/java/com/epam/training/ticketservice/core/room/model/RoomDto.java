@@ -1,7 +1,9 @@
 package com.epam.training.ticketservice.core.room.model;
 
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class RoomDto {
 
@@ -13,6 +15,9 @@ public class RoomDto {
 
     @Override
     public String toString() {
-        return "Room " + name + " with " + (rowCount * columnCount) + " seats, " + rowCount + " rows and " + columnCount + " columns";
+        return "Room " + name
+                + " with " + (rowCount * columnCount)
+                + " seats, " + rowCount + " rows and "
+                + columnCount + " columns";
     }
 }
