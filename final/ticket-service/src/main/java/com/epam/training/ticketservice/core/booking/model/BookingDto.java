@@ -1,5 +1,6 @@
 package com.epam.training.ticketservice.core.booking.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ public class BookingDto {
     private final String seats;
     private final String username;
     private final int price;
+
 
     @Override
     public String toString() {

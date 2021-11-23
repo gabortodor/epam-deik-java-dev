@@ -30,7 +30,7 @@ public class ScreeningServiceImpl implements ScreeningService {
     private final RoomService roomService;
 
     @Autowired
-    ScreeningServiceImpl(ScreeningRepository screeningRepository, MovieService movieService, RoomService roomService) {
+    public ScreeningServiceImpl(ScreeningRepository screeningRepository, MovieService movieService, RoomService roomService) {
         this.screeningRepository = screeningRepository;
         this.movieService = movieService;
         this.roomService = roomService;
