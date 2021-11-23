@@ -24,20 +24,14 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public void createMovie(MovieDto movieDto) {
-        Objects.requireNonNull(movieDto, "Movie cannot be null");
-        Objects.requireNonNull(movieDto.getTitle(), "The movie's title cannot be null");
-        Objects.requireNonNull(movieDto.getGenre(), "The movie's genre cannot be null");
-        Objects.requireNonNull(movieDto.getRuntime(), "The movie's runtime cannot be null");
+        checkIfValidMovie(movieDto);
         Movie movie = new Movie(movieDto.getTitle(), movieDto.getGenre(), movieDto.getRuntime());
         movieRepository.save(movie);
     }
 
     @Override
     public void updateMovie(MovieDto movieDto) {
-        Objects.requireNonNull(movieDto, "Movie cannot be null");
-        Objects.requireNonNull(movieDto.getTitle(), "The movie's title cannot be null");
-        Objects.requireNonNull(movieDto.getGenre(), "The movie's genre cannot be null");
-        Objects.requireNonNull(movieDto.getRuntime(), "The movie's runtime cannot be null");
+        checkIfValidMovie(movieDto);
         Movie movie = new Movie(movieDto.getTitle(), movieDto.getGenre(), movieDto.getRuntime());
         movieRepository.save(movie);
     }
@@ -67,6 +61,13 @@ public class MovieServiceImpl implements MovieService {
         movie.setChangeInPrice(priceChange);
         movieRepository.save(movie);
         return "Price component successfully applied";
+    }
+
+    private void checkIfValidMovie(MovieDto movieDto){
+        Objects.requireNonNull(movieDto, "Movie cannot be null");
+        Objects.requireNonNull(movieDto.getTitle(), "The movie's title cannot be null");
+        Objects.requireNonNull(movieDto.getGenre(), "The movie's genre cannot be null");
+        Objects.requireNonNull(movieDto.getRuntime(), "The movie's runtime cannot be null");
     }
 
     private MovieDto convertEntityToDto(Movie movie) {

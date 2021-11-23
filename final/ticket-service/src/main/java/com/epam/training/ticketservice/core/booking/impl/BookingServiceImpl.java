@@ -4,12 +4,10 @@ import com.epam.training.ticketservice.core.booking.BookingService;
 import com.epam.training.ticketservice.core.booking.model.BookingDto;
 import com.epam.training.ticketservice.core.booking.persistence.entity.Booking;
 import com.epam.training.ticketservice.core.booking.persistence.repository.BookingRepository;
-import com.epam.training.ticketservice.core.movie.MovieService;
-import com.epam.training.ticketservice.core.movie.model.MovieDto;
+import com.epam.training.ticketservice.core.pricecomponent.PriceComponentService;
 import com.epam.training.ticketservice.core.room.RoomService;
 import com.epam.training.ticketservice.core.room.model.RoomDto;
 import com.epam.training.ticketservice.core.screening.ScreeningService;
-import com.epam.training.ticketservice.core.screening.model.ScreeningDto;
 import com.epam.training.ticketservice.core.screening.persistence.entity.Screening;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,40 +28,32 @@ public class BookingServiceImpl implements BookingService {
 
     private final RoomService roomService;
 
-    private final MovieService movieService;
+    private final PriceComponentService priceComponentService;
 
     @Autowired
-    public BookingServiceImpl(BookingRepository bookingRepository, ScreeningService screeningService,
-                              RoomService roomService, MovieService movieService) {
+    public BookingServiceImpl(BookingRepository bookingRepository, RoomService roomService, ScreeningService screeningService,
+                              PriceComponentService priceComponentService) {
         this.bookingRepository = bookingRepository;
         this.screeningService = screeningService;
         this.roomService = roomService;
-        this.movieService = movieService;
+        this.priceComponentService = priceComponentService;
     }
 
     @Override
     public String createBooking(BookingDto bookingDto) {
-        Objects.requireNonNull(bookingDto, "Screening cannot be null");
-        Objects.requireNonNull(bookingDto.getMovieTitle(), "The booking's movie cannot be null");
-        Objects.requireNonNull(bookingDto.getRoomName(), "The booking's room cannot be null");
-        Objects.requireNonNull(bookingDto.getStartingTime(), "The booking's starting time cannot be null");
-        Objects.requireNonNull(bookingDto.getSeats(), "The booked seats time cannot be null");
-        Screening.ScreeningKey screeningKey = new Screening.ScreeningKey(bookingDto.getMovieTitle(),
-                bookingDto.getRoomName(), bookingDto.getStartingTime());
-        Optional<ScreeningDto> screeningOpt = screeningService.getScreeningByKey(screeningKey);
-        if (screeningOpt.isEmpty()) {
-            return "No such screening exists";
+        if (!isValidBooking(bookingDto)) {
+            return "Cannot find specified screening";
         }
-        if (checkValidSeats(bookingDto).isPresent()) {
-            return "Seat (" + checkValidSeats(bookingDto).get() + ") does not exists in this room";
+        Optional<String> invalidSeat = checkValidSeats(bookingDto);
+        if (invalidSeat.isPresent()) {
+            return "Seat (" + invalidSeat.get() + ") does not exists in this room";
         }
-        if (checkSeatsBooked(bookingDto).isPresent()) {
-            return "Seat (" + checkSeatsBooked(bookingDto).get() + ") is already taken";
+
+        Optional<String> bookedSeat = checkSeatsBooked(bookingDto);
+        if (bookedSeat.isPresent()) {
+            return "Seat (" + bookedSeat.get() + ") is already taken";
         }
-        if (calculatePriceForBooking(bookingDto) == -1) {
-            return "Invalid arguments given";
-        }
-        int price = calculatePriceForBooking(bookingDto);
+        int price = getPriceForBooking(bookingDto).orElseThrow(() -> new IllegalStateException("Invalid booking"));
 
         Booking booking = new Booking(bookingDto.getMovieTitle(), bookingDto.getRoomName(),
                 bookingDto.getStartingTime(), bookingDto.getSeats(), bookingDto.getUsername(), price);
@@ -89,7 +79,9 @@ public class BookingServiceImpl implements BookingService {
 
         for (Booking booking : bookings) {
             List<String> bookedSeats = List.of(booking.getSeats().split(" "));
-            return wantedSeats.stream().filter(bookedSeats::contains).findFirst();
+            Optional<String> overlapping = wantedSeats.stream().filter(bookedSeats::contains).findFirst();
+            if (overlapping.isPresent())
+                return overlapping;
         }
         return Optional.empty();
     }
@@ -107,26 +99,29 @@ public class BookingServiceImpl implements BookingService {
 
 
     private boolean isValidBooking(BookingDto bookingDto) {
+        Objects.requireNonNull(bookingDto, "Screening cannot be null");
+        Objects.requireNonNull(bookingDto.getMovieTitle(), "The booking's movie cannot be null");
+        Objects.requireNonNull(bookingDto.getRoomName(), "The booking's room cannot be null");
+        Objects.requireNonNull(bookingDto.getStartingTime(), "The booking's starting time cannot be null");
+        Objects.requireNonNull(bookingDto.getSeats(), "The booked seats time cannot be null");
+
         Screening.ScreeningKey screeningKey = new Screening.ScreeningKey(bookingDto.getMovieTitle(),
                 bookingDto.getRoomName(), bookingDto.getStartingTime());
-        return movieService.getMovieByTitle(bookingDto.getMovieTitle()).isPresent()
-                && roomService.getRoomByName(bookingDto.getRoomName()).isPresent()
-                && screeningService.getScreeningByKey(screeningKey).isPresent();
+        return screeningService.getScreeningByKey(screeningKey).isPresent();
     }
 
-    public int calculatePriceForBooking(BookingDto bookingDto) {
+    public Optional<Integer> getPriceForBooking(BookingDto bookingDto) {
         if (!isValidBooking(bookingDto)) {
-            return -1;
+            return Optional.empty();
         }
-        MovieDto movie = movieService.getMovieByTitle(bookingDto.getMovieTitle()).get();
-        RoomDto room = roomService.getRoomByName(bookingDto.getRoomName()).get();
-        Screening.ScreeningKey screeningKey = new Screening.ScreeningKey(bookingDto.getMovieTitle(),
+        int moviePriceChange = priceComponentService.getChangeInPriceForMovie(bookingDto.getMovieTitle());
+        int roomPriceChange = priceComponentService.getChangeInPriceForRoom(bookingDto.getRoomName());
+        int screeningPriceChange = priceComponentService.getChangeInPriceForScreening(bookingDto.getMovieTitle(),
                 bookingDto.getRoomName(), bookingDto.getStartingTime());
-        ScreeningDto screening = screeningService.getScreeningByKey(screeningKey).get();
+
         int numberOfSeats = bookingDto.getSeats().split(" ").length;
 
-        return numberOfSeats
-                * (basePrice + movie.getChangeInPrice() + room.getChangeInPrice() + screening.getChangeInPrice());
+        return Optional.of(numberOfSeats * (basePrice + moviePriceChange + roomPriceChange + screeningPriceChange));
     }
 
     public void setBasePrice(int newBasePrice) {

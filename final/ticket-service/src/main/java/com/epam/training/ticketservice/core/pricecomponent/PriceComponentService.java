@@ -11,4 +11,10 @@ public interface PriceComponentService {
     String attachPriceComponentToMovie(String name, String movieTitle);
 
     String attachPriceComponentToScreening(String name, String movieTitle, String roomName, String startingTime);
+
+    int getChangeInPriceForMovie(String movieTitle);
+
+    int getChangeInPriceForRoom(String roomName);
+
+    int getChangeInPriceForScreening(String movieTitle, String roomName, String startingTime);
 }

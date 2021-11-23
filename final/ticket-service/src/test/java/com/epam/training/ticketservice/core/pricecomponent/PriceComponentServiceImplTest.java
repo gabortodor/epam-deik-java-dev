@@ -2,6 +2,7 @@ package com.epam.training.ticketservice.core.pricecomponent;
 
 import com.epam.training.ticketservice.core.movie.MovieService;
 import com.epam.training.ticketservice.core.movie.impl.MovieServiceImpl;
+import com.epam.training.ticketservice.core.movie.model.MovieDto;
 import com.epam.training.ticketservice.core.pricecomponent.impl.PriceComponentServiceImpl;
 import com.epam.training.ticketservice.core.pricecomponent.model.PriceComponentDto;
 import com.epam.training.ticketservice.core.pricecomponent.persistence.entity.PriceComponent;
@@ -12,6 +13,8 @@ import com.epam.training.ticketservice.core.room.model.RoomDto;
 import com.epam.training.ticketservice.core.room.persistence.entity.Room;
 import com.epam.training.ticketservice.core.screening.ScreeningService;
 import com.epam.training.ticketservice.core.screening.impl.ScreeningServiceImpl;
+import com.epam.training.ticketservice.core.screening.model.ScreeningDto;
+import com.epam.training.ticketservice.core.screening.persistence.entity.Screening;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -152,5 +155,97 @@ public class PriceComponentServiceImplTest {
         assertEquals(expected, actual);
         verify(priceComponentRepository).findById("testComponentName");
         verify(screeningService).updateChangeInPrice("testMovieTitle", "testRoomName","2021-10-10 16:30", 100);
+    }
+
+    @Test
+    public void testGetChangeInPriceForMovieShouldThrowIllegalStateExceptionWhenMovieIsInvalid() {
+        // Given
+        when(movieService.getMovieByTitle("testMovieTitle")).thenReturn(Optional.empty());
+
+        // When - Then
+        assertThrows(IllegalStateException.class, () -> underTest.getChangeInPriceForMovie("testMovieTitle"));
+    }
+
+    @Test
+    public void testGetChangeInPriceForMovieShouldReturnChangeInPriceWhenMovieIsValid() {
+        // Given
+        MovieDto movieDto = MovieDto.builder()
+                .title("testMovieTitle")
+                .genre("comedy")
+                .runtime(120)
+                .changeInPrice(100)
+                .build();
+
+        when(movieService.getMovieByTitle("testMovieTitle")).thenReturn(Optional.of(movieDto));
+        int expected = 100;
+
+        // When
+        int actual = underTest.getChangeInPriceForMovie("testMovieTitle");
+
+        // Then
+        assertEquals(expected, actual);
+        verify(movieService).getMovieByTitle("testMovieTitle");
+    }
+
+    @Test
+    public void testGetChangeInPriceForRoomShouldThrowIllegalStateExceptionWhenRoomIsInvalid() {
+        // Given
+        when(roomService.getRoomByName("testRoomName")).thenReturn(Optional.empty());
+
+        // When - Then
+        assertThrows(IllegalStateException.class, () -> underTest.getChangeInPriceForRoom("testRoomName"));
+    }
+
+    @Test
+    public void testGetChangeInPriceForRoomShouldReturnChangeInPriceWhenRoomIsValid() {
+        // Given
+        RoomDto roomDto = RoomDto.builder()
+                .name("testRoomName")
+                .rowCount(10)
+                .columnCount(12)
+                .changeInPrice(100)
+                .build();
+
+        when(roomService.getRoomByName("testRoomName")).thenReturn(Optional.of(roomDto));
+        int expected = 100;
+
+        // When
+        int actual = underTest.getChangeInPriceForRoom("testRoomName");
+
+        // Then
+        assertEquals(expected, actual);
+        verify(roomService).getRoomByName("testRoomName");
+    }
+
+    @Test
+    public void testGetChangeInScreeningForRoomShouldThrowIllegalStateExceptionWhenScreeningIsInvalid() {
+        // Given
+        Screening.ScreeningKey screeningKey= new Screening.ScreeningKey("testMovieTitle","testRoomName","2021-10-10 16:30");
+        when(screeningService.getScreeningByKey(screeningKey)).thenReturn(Optional.empty());
+
+        // When - Then
+        assertThrows(IllegalStateException.class, () -> underTest.getChangeInPriceForScreening("testMovieTitle","testRoomName","2021-10-10 16:30"));
+    }
+
+    @Test
+    public void testGetChangeInPriceForScreeningShouldReturnChangeInPriceWhenScreeningIsValid() {
+        // Given
+        ScreeningDto screeningDto = ScreeningDto.builder()
+                .movieTitle("testMovieTitle")
+                .roomName("testRoomName")
+                .startingTime("2021-10-10 16:30")
+                .changeInPrice(100)
+                .build();
+
+        Screening.ScreeningKey screeningKey= new Screening.ScreeningKey("testMovieTitle","testRoomName","2021-10-10 16:30");
+        when(screeningService.getScreeningByKey(screeningKey)).thenReturn(Optional.of(screeningDto));
+        int expected = 100;
+
+        // When
+        int actual = underTest.getChangeInPriceForScreening("testMovieTitle","testRoomName","2021-10-10 16:30");
+
+        // Then
+        assertEquals(expected, actual);
+        verify(screeningService).getScreeningByKey(screeningKey);
     }
 }

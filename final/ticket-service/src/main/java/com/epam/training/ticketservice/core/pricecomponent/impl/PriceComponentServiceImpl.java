@@ -1,12 +1,16 @@
 package com.epam.training.ticketservice.core.pricecomponent.impl;
 
 import com.epam.training.ticketservice.core.movie.MovieService;
+import com.epam.training.ticketservice.core.movie.model.MovieDto;
 import com.epam.training.ticketservice.core.pricecomponent.PriceComponentService;
 import com.epam.training.ticketservice.core.pricecomponent.model.PriceComponentDto;
 import com.epam.training.ticketservice.core.pricecomponent.persistence.entity.PriceComponent;
 import com.epam.training.ticketservice.core.pricecomponent.persistence.repository.PriceComponentRepository;
 import com.epam.training.ticketservice.core.room.RoomService;
+import com.epam.training.ticketservice.core.room.model.RoomDto;
 import com.epam.training.ticketservice.core.screening.ScreeningService;
+import com.epam.training.ticketservice.core.screening.model.ScreeningDto;
+import com.epam.training.ticketservice.core.screening.persistence.entity.Screening;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,5 +71,21 @@ public class PriceComponentServiceImpl implements PriceComponentService {
         }
         return screeningService.updateChangeInPrice(movieTitle, roomName, startingTime,
                 priceComponent.get().getValue());
+    }
+
+    public int getChangeInPriceForMovie(String movieTitle) {
+        MovieDto movieDto = movieService.getMovieByTitle(movieTitle).orElseThrow(() -> new IllegalStateException("Movie cannot be found"));
+        return movieDto.getChangeInPrice();
+    }
+
+    public int getChangeInPriceForRoom(String roomName) {
+        RoomDto roomDto = roomService.getRoomByName(roomName).orElseThrow(() -> new IllegalStateException("Room cannot be found"));
+        return roomDto.getChangeInPrice();
+    }
+
+    public int getChangeInPriceForScreening(String movieTitle, String roomName, String startingTime) {
+        Screening.ScreeningKey screeningKey = new Screening.ScreeningKey(movieTitle, roomName, startingTime);
+        ScreeningDto screeningDto = screeningService.getScreeningByKey(screeningKey).orElseThrow(() -> new IllegalStateException("Screening cannot be found"));
+        return screeningDto.getChangeInPrice();
     }
 }

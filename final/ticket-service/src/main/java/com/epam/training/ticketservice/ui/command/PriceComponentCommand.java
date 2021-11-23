@@ -77,10 +77,9 @@ public class PriceComponentCommand {
                 .roomName(roomName)
                 .startingTime(startingTime)
                 .seats(seats).build();
-        if (bookingService.calculatePriceForBooking(booking) == -1) {
-            return "Invalid booking given";
-        }
-        return "The price for this booking would be " + bookingService.calculatePriceForBooking(booking) + " HUF";
+        int price = bookingService.getPriceForBooking(booking).orElseThrow(()
+                -> new IllegalStateException("Invalid booking"));
+        return "The price for this booking would be " + price + " HUF";
     }
 
     private Availability isAvailable() {
