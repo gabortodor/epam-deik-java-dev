@@ -13,7 +13,7 @@ public interface MovieService {
 
     void deleteMovie(String title);
 
-    List<MovieDto> listMovies();
+    List<MovieDto> getMovieList();
 
     Optional<MovieDto> getMovieByTitle(String title);
 

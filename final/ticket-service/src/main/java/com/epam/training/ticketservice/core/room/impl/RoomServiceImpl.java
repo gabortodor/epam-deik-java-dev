@@ -50,7 +50,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public List<RoomDto> listRooms() {
+    public List<RoomDto> getRoomList() {
         return roomRepository.findAll().stream().map(this::convertEntityToDto).collect(Collectors.toList());
     }
 
@@ -84,4 +84,5 @@ public class RoomServiceImpl implements RoomService {
     private Optional<RoomDto> convertEntityToDto(Optional<Room> room) {
         return room.isEmpty() ? Optional.empty() : Optional.of(convertEntityToDto(room.get()));
     }
+
 }

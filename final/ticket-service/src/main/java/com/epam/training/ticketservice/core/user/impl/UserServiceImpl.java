@@ -22,6 +22,11 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
+    public UserServiceImpl(UserDto loggedInUser, UserRepository userRepository) {
+        this.signedInUser = loggedInUser;
+        this.userRepository = userRepository;
+    }
+
     @Override
     public Optional<UserDto> signIn(String username, String password) {
         Objects.requireNonNull(username, "Username must have a value for a successful login!");

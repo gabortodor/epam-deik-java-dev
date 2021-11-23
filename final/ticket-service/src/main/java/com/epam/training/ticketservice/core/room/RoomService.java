@@ -13,7 +13,7 @@ public interface RoomService {
 
     void deleteRoom(String name);
 
-    List<RoomDto> listRooms();
+    List<RoomDto> getRoomList();
 
     Optional<RoomDto> getRoomByName(String name);
 

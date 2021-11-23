@@ -53,7 +53,7 @@ public class RoomCommand {
 
     @ShellMethod(key = "list rooms", value = "Lists all the rooms")
     public String listRooms() {
-        List<RoomDto> roomList = roomService.listRooms();
+        List<RoomDto> roomList = roomService.getRoomList();
         if (roomList.isEmpty()) {
             return "There are no rooms at the moment";
         }

@@ -2,6 +2,8 @@ package com.epam.training.ticketservice.core.screening;
 
 import com.epam.training.ticketservice.core.movie.MovieService;
 import com.epam.training.ticketservice.core.movie.impl.MovieServiceImpl;
+import com.epam.training.ticketservice.core.movie.model.MovieDto;
+import com.epam.training.ticketservice.core.movie.persistence.entity.Movie;
 import com.epam.training.ticketservice.core.room.RoomService;
 import com.epam.training.ticketservice.core.room.impl.RoomServiceImpl;
 import com.epam.training.ticketservice.core.room.model.RoomDto;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ScreeningServiceImplTest {
     private final ScreeningRepository screeningRepository  = mock(ScreeningRepository.class);
@@ -65,4 +68,6 @@ public class ScreeningServiceImplTest {
         // When - Then
         assertThrows(NullPointerException.class, () -> underTest.createScreening(screeningDto));
     }
+
+
 }
