@@ -59,7 +59,7 @@ public class ScreeningCommand {
 
     @ShellMethod(key = "list screenings", value = "Lists all the screenings")
     public String listScreenings() {
-        List<ScreeningDto> screeningList = screeningService.listScreenings();
+        List<ScreeningDto> screeningList = screeningService.getScreeningList();
         if (screeningList.isEmpty()) {
             return "There are no screenings";
         }

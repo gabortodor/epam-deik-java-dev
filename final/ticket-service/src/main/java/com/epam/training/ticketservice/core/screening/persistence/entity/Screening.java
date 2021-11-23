@@ -23,6 +23,11 @@ public class Screening {
         this.screeningKey = new ScreeningKey(movieTitle, roomName, startingTime);
     }
 
+    public Screening(String movieTitle, String roomName, String startingTime, int changeInPrice) {
+        this.screeningKey = new ScreeningKey(movieTitle, roomName, startingTime);
+        this.changeInPrice = changeInPrice;
+    }
+
     public String getMovieTitle() {
         return this.screeningKey.getMovieTitle();
     }

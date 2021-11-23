@@ -4,7 +4,6 @@ import com.epam.training.ticketservice.core.movie.MovieService;
 import com.epam.training.ticketservice.core.movie.model.MovieDto;
 import com.epam.training.ticketservice.core.room.RoomService;
 import com.epam.training.ticketservice.core.room.model.RoomDto;
-import com.epam.training.ticketservice.core.room.persistence.entity.Room;
 import com.epam.training.ticketservice.core.screening.ScreeningService;
 import com.epam.training.ticketservice.core.screening.model.ScreeningDto;
 import com.epam.training.ticketservice.core.screening.persistence.entity.Screening;
@@ -80,7 +79,7 @@ public class ScreeningServiceImpl implements ScreeningService {
     }
 
     @Override
-    public List<ScreeningDto> listScreenings() {
+    public List<ScreeningDto> getScreeningList() {
         return screeningRepository.findAll().stream().map(this::convertEntityToDto).collect(Collectors.toList());
     }
 

@@ -12,7 +12,7 @@ public interface ScreeningService {
 
     void deleteScreening(ScreeningDto screeningDto);
 
-    List<ScreeningDto> listScreenings();
+    List<ScreeningDto> getScreeningList();
 
     List<ScreeningDto> getScreeningsInSpecifiedRoom(String roomName);
 
