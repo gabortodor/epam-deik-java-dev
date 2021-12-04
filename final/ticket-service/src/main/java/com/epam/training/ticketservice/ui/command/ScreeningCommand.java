@@ -11,11 +11,7 @@ import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
-
-import java.text.Collator;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -68,11 +64,6 @@ public class ScreeningCommand {
                 + ", " + movieService.getMovieByTitle(s.getMovieTitle()).get().getRuntime()
                 + " minutes), screened in room " + s.getRoomName() + ", at "
                 + s.getStartingTime()).collect(Collectors.toList());
-
-        //TODO
-        Locale hungarian = new Locale("hu", "HU");
-        Collator collator = Collator.getInstance(hungarian);
-        Collections.sort(screeningStrings, collator);
         return String.join("\n",screeningStrings);
     }
 

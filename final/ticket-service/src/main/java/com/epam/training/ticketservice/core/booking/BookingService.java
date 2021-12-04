@@ -9,9 +9,11 @@ import java.util.Optional;
 public interface BookingService {
     String createBooking(BookingDto bookingDto);
 
-    List<BookingDto> listBookingForUser(String username);
+    List<BookingDto> getBookingListForUser(String username);
 
     Optional<Integer> getPriceForBooking(BookingDto bookingDto);
 
     void setBasePrice(int newBasePrice);
+
+    Optional<String> checkValidSeats(BookingDto bookingDto);
 }

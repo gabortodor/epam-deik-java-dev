@@ -1,6 +1,6 @@
 package com.epam.training.ticketservice.core.booking.model;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Builder;
 import lombok.Data;
 

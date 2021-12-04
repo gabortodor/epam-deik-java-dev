@@ -31,8 +31,8 @@ public class BookingServiceImpl implements BookingService {
     private final PriceComponentService priceComponentService;
 
     @Autowired
-    public BookingServiceImpl(BookingRepository bookingRepository, RoomService roomService, ScreeningService screeningService,
-                              PriceComponentService priceComponentService) {
+    public BookingServiceImpl(BookingRepository bookingRepository, RoomService roomService,
+                              ScreeningService screeningService, PriceComponentService priceComponentService) {
         this.bookingRepository = bookingRepository;
         this.screeningService = screeningService;
         this.roomService = roomService;
@@ -64,9 +64,21 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> listBookingForUser(String username) {
+    public List<BookingDto> getBookingListForUser(String username) {
         return bookingRepository.findAllByUsername(username).stream()
                 .map(this::convertEntityToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<String> checkValidSeats(BookingDto bookingDto) {
+        List<String> wantedSeats = List.of(bookingDto.getSeats().split(" "));
+        RoomDto room = roomService.getRoomByName(bookingDto.getRoomName()).get();
+
+        return wantedSeats.stream().filter(b -> (Integer.parseInt(b.split(",")[0])) <= 0
+                || (Integer.parseInt(b.split(",")[0])) > room.getRowCount()
+                || (Integer.parseInt(b.split(",")[1])) <= 0
+                || (Integer.parseInt(b.split(",")[1])) > room.getColumnCount()).findFirst();
+
     }
 
     private Optional<String> checkSeatsBooked(BookingDto bookingDto) {
@@ -80,23 +92,12 @@ public class BookingServiceImpl implements BookingService {
         for (Booking booking : bookings) {
             List<String> bookedSeats = List.of(booking.getSeats().split(" "));
             Optional<String> overlapping = wantedSeats.stream().filter(bookedSeats::contains).findFirst();
-            if (overlapping.isPresent())
+            if (overlapping.isPresent()) {
                 return overlapping;
+            }
         }
         return Optional.empty();
     }
-
-    private Optional<String> checkValidSeats(BookingDto bookingDto) {
-        List<String> wantedSeats = List.of(bookingDto.getSeats().split(" "));
-        RoomDto room = roomService.getRoomByName(bookingDto.getRoomName()).get();
-
-        return wantedSeats.stream().filter(b -> Character.getNumericValue(b.charAt(0)) < 0
-                || Character.getNumericValue(b.charAt(0)) > room.getRowCount()
-                || Character.getNumericValue(b.charAt(2)) < 0
-                || Character.getNumericValue(b.charAt(2)) > room.getColumnCount()).findFirst();
-
-    }
-
 
     private boolean isValidBooking(BookingDto bookingDto) {
         Objects.requireNonNull(bookingDto, "Screening cannot be null");
@@ -137,10 +138,6 @@ public class BookingServiceImpl implements BookingService {
                 .username(booking.getUsername())
                 .price(booking.getPrice())
                 .build();
-    }
-
-    private Optional<BookingDto> convertEntityToDto(Optional<Booking> booking) {
-        return booking.isEmpty() ? Optional.empty() : Optional.of(convertEntityToDto(booking.get()));
     }
 
 

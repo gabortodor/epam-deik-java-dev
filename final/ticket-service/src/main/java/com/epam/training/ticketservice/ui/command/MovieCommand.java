@@ -10,13 +10,10 @@ import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
-
-import java.text.Collator;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @ShellComponent
 public class MovieCommand {
@@ -51,7 +48,7 @@ public class MovieCommand {
     @ShellMethod(key = "delete movie", value = "Deletes the specified movie")
     public String deleteMovie(String title) {
         movieService.deleteMovie(title);
-        return title + "was successfully deleted!";
+        return title + " was successfully deleted!";
     }
 
     @ShellMethod(key = "list movies", value = "Lists all the movies")
@@ -61,12 +58,6 @@ public class MovieCommand {
             return "There are no movies at the moment";
         }
         List<String> movieStrings = movieList.stream().map(MovieDto::toString).collect(Collectors.toList());
-
-
-        //TODO
-        Locale hungarian = new Locale("hu", "HU");
-        Collator collator = Collator.getInstance(hungarian);
-        Collections.sort(movieStrings, collator);
         return String.join("\n",movieStrings);
 
     }

@@ -74,18 +74,21 @@ public class PriceComponentServiceImpl implements PriceComponentService {
     }
 
     public int getChangeInPriceForMovie(String movieTitle) {
-        MovieDto movieDto = movieService.getMovieByTitle(movieTitle).orElseThrow(() -> new IllegalStateException("Movie cannot be found"));
+        MovieDto movieDto = movieService.getMovieByTitle(movieTitle)
+                .orElseThrow(() -> new IllegalStateException("Movie cannot be found"));
         return movieDto.getChangeInPrice();
     }
 
     public int getChangeInPriceForRoom(String roomName) {
-        RoomDto roomDto = roomService.getRoomByName(roomName).orElseThrow(() -> new IllegalStateException("Room cannot be found"));
+        RoomDto roomDto = roomService.getRoomByName(roomName)
+                .orElseThrow(() -> new IllegalStateException("Room cannot be found"));
         return roomDto.getChangeInPrice();
     }
 
     public int getChangeInPriceForScreening(String movieTitle, String roomName, String startingTime) {
         Screening.ScreeningKey screeningKey = new Screening.ScreeningKey(movieTitle, roomName, startingTime);
-        ScreeningDto screeningDto = screeningService.getScreeningByKey(screeningKey).orElseThrow(() -> new IllegalStateException("Screening cannot be found"));
+        ScreeningDto screeningDto = screeningService.getScreeningByKey(screeningKey)
+                .orElseThrow(() -> new IllegalStateException("Screening cannot be found"));
         return screeningDto.getChangeInPrice();
     }
 }

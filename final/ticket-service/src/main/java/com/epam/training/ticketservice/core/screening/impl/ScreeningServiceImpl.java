@@ -8,13 +8,10 @@ import com.epam.training.ticketservice.core.screening.ScreeningService;
 import com.epam.training.ticketservice.core.screening.model.ScreeningDto;
 import com.epam.training.ticketservice.core.screening.persistence.entity.Screening;
 import com.epam.training.ticketservice.core.screening.persistence.repository.ScreeningRepository;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,7 +26,8 @@ public class ScreeningServiceImpl implements ScreeningService {
     private final RoomService roomService;
 
     @Autowired
-    public ScreeningServiceImpl(ScreeningRepository screeningRepository, MovieService movieService, RoomService roomService) {
+    public ScreeningServiceImpl(ScreeningRepository screeningRepository,
+                                MovieService movieService, RoomService roomService) {
         this.screeningRepository = screeningRepository;
         this.movieService = movieService;
         this.roomService = roomService;
@@ -54,16 +52,13 @@ public class ScreeningServiceImpl implements ScreeningService {
 
         for (ScreeningDto screening : getScreeningsInSpecifiedRoom(screeningDto.getRoomName())) {
             int oldRuntime = movieService.getMovieByTitle(screening.getMovieTitle()).get().getRuntime();
-            try {
-                if (isOverLapping(screening.getStartingTime(), oldRuntime, screeningDto.getStartingTime(), runtime)) {
-                    return "There is an overlapping screening";
-                } else if (isOverLapping(screening.getStartingTime(),
-                        oldRuntime + 10, screeningDto.getStartingTime(), runtime)) {
-                    return "This would start in the break period after another screening in this room";
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
+            if (isOverLapping(screening.getStartingTime(), oldRuntime, screeningDto.getStartingTime(), runtime)) {
+                return "There is an overlapping screening";
+            } else if (isOverLapping(screening.getStartingTime(),
+                    oldRuntime + 10, screeningDto.getStartingTime(), runtime)) {
+                return "This would start in the break period after another screening in this room";
             }
+
         }
         Screening screening = new Screening(screeningDto.getMovieTitle(),
                 screeningDto.getRoomName(), screeningDto.getStartingTime());
@@ -121,14 +116,14 @@ public class ScreeningServiceImpl implements ScreeningService {
     }
 
 
-    private boolean isOverLapping(String originalStartDate, int originalRuntime, String newStartDate, int newRuntime)
-            throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-        Date originalStart = format.parse(originalStartDate);
-        Date originalEnd = DateUtils.addMinutes(originalStart, originalRuntime);
-        Date newStart = format.parse(newStartDate);
-        Date newEnd = DateUtils.addMinutes(newStart, newRuntime);
-        return originalStart.before(newEnd) && newStart.before(originalEnd);
+    private boolean isOverLapping(String originalStartDate, int originalRuntime, String newStartDate, int newRuntime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime originalStart = LocalDateTime.parse(originalStartDate, formatter);
+        LocalDateTime originalEnd = originalStart.plusMinutes(originalRuntime);
+        LocalDateTime newStart = LocalDateTime.parse(newStartDate, formatter);
+        LocalDateTime newEnd = newStart.plusMinutes(newRuntime);
+
+        return originalStart.isBefore(newEnd) && newStart.isBefore(originalEnd);
 
     }
 }

@@ -32,6 +32,8 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public void updateMovie(MovieDto movieDto) {
         checkIfValidMovie(movieDto);
+        movieRepository.findById(movieDto.getTitle())
+                .orElseThrow(() -> new IllegalArgumentException("Cannot find specified movie"));
         Movie movie = new Movie(movieDto.getTitle(), movieDto.getGenre(), movieDto.getRuntime());
         movieRepository.save(movie);
     }
@@ -63,7 +65,7 @@ public class MovieServiceImpl implements MovieService {
         return "Price component successfully applied";
     }
 
-    private void checkIfValidMovie(MovieDto movieDto){
+    private void checkIfValidMovie(MovieDto movieDto) {
         Objects.requireNonNull(movieDto, "Movie cannot be null");
         Objects.requireNonNull(movieDto.getTitle(), "The movie's title cannot be null");
         Objects.requireNonNull(movieDto.getGenre(), "The movie's genre cannot be null");

@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 public class MovieServiceImplTest {
 
     private final MovieRepository movieRepository = mock(MovieRepository.class);
-    private MovieService underTest = new MovieServiceImpl(movieRepository);
+    private final MovieService underTest = new MovieServiceImpl(movieRepository);
 
     @Test
     public void testCreateMovieShouldThrowNullPointerExceptionWhenMovieIsNull() {
@@ -130,6 +130,9 @@ public class MovieServiceImplTest {
                 .genre("comedy")
                 .runtime(120)
                 .build();
+        Movie movie = new Movie("testTitle", "comedy", 120);
+        when(movieRepository.findById("testTitle")).thenReturn(Optional.of(movie));
+
         // When
         underTest.updateMovie(movieDto);
 

@@ -10,14 +10,11 @@ import com.epam.training.ticketservice.core.pricecomponent.persistence.repositor
 import com.epam.training.ticketservice.core.room.RoomService;
 import com.epam.training.ticketservice.core.room.impl.RoomServiceImpl;
 import com.epam.training.ticketservice.core.room.model.RoomDto;
-import com.epam.training.ticketservice.core.room.persistence.entity.Room;
 import com.epam.training.ticketservice.core.screening.ScreeningService;
 import com.epam.training.ticketservice.core.screening.impl.ScreeningServiceImpl;
 import com.epam.training.ticketservice.core.screening.model.ScreeningDto;
 import com.epam.training.ticketservice.core.screening.persistence.entity.Screening;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;

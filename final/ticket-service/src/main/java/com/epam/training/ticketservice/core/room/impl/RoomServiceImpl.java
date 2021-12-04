@@ -33,6 +33,8 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public void updateRoom(RoomDto roomDto) {
         checkIfValidRoom(roomDto);
+        roomRepository.findById(roomDto.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Cannot find specified room"));
         Room room = new Room(roomDto.getName(), roomDto.getRowCount(), roomDto.getColumnCount());
         roomRepository.save(room);
     }
@@ -40,7 +42,6 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public void deleteRoom(String name) {
         roomRepository.deleteById(name);
-
     }
 
     @Override
@@ -66,7 +67,7 @@ public class RoomServiceImpl implements RoomService {
         return "Price component successfully applied";
     }
 
-    private void checkIfValidRoom(RoomDto roomDto){
+    private void checkIfValidRoom(RoomDto roomDto) {
         Objects.requireNonNull(roomDto, "Room cannot be null");
         Objects.requireNonNull(roomDto.getName(), "The room's name cannot be null");
         Objects.requireNonNull(roomDto.getRowCount(), "The room's row count cannot be null");

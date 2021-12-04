@@ -1,8 +1,5 @@
 package com.epam.training.ticketservice.core.room;
 
-
-import com.epam.training.ticketservice.core.movie.model.MovieDto;
-import com.epam.training.ticketservice.core.movie.persistence.entity.Movie;
 import com.epam.training.ticketservice.core.room.impl.RoomServiceImpl;
 import com.epam.training.ticketservice.core.room.model.RoomDto;
 import com.epam.training.ticketservice.core.room.persistence.entity.Room;
@@ -13,14 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 public class RoomServiceImplTest {
 
     private final RoomRepository roomRepository = mock(RoomRepository.class);
-    private RoomService underTest = new RoomServiceImpl(roomRepository);
+    private final RoomService underTest = new RoomServiceImpl(roomRepository);
 
 
     @Test
@@ -136,7 +131,7 @@ public class RoomServiceImplTest {
                 .rowCount(10)
                 .columnCount(12)
                 .build();
-
+        when(roomRepository.findById("testName")).thenReturn(Optional.of(new Room("testName", 10,12)));
         // When
         underTest.updateRoom(roomDto);
 
